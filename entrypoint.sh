@@ -6,6 +6,10 @@ if [ -n "${GITHUB_WORKSPACE}" ]; then
   cd "${GITHUB_WORKSPACE}" || exit
 fi
 
-env
 
-cat /github/workflow/event.json
+
+if ! tfsec --format=json "${INPUT_WORKING_DIRECTORY}" > results.json
+then
+  echo "tfsec errors occurred, running commenter "
+  /commenter
+fi
