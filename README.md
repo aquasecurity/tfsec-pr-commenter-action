@@ -27,3 +27,9 @@ jobs:
 On each pull request and subsequent commit, tfsec will run and add comments to the PR where tfsec has failed. 
 
 The comment will only be added once per transgression.
+
+## Example PR Comment
+
+The screenshot below demonstrates the comments that can be expected when using the action
+
+![Example PR Comment](pr_comment.png)
