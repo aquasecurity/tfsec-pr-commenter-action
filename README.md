@@ -1,4 +1,4 @@
-# tfsec-github-commenter-action
+# tfsec-pr-commenter-action
 Add comments to pull requests where tfsec checks have failed
 
 To add the action, add `tfsec_pr_commenter.yml` into the `.github/workflows` directory in the root of your Github project.
