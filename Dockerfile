@@ -2,7 +2,7 @@ FROM golang:alpine AS builder
 
 ENV SRCPATH $GOPATH/src/commenter
 COPY ./ $SRCPATH
-RUN go install commenter
+RUN go install $SRCPATH/cmd/commenter
 
 
 FROM alpine:3.12
