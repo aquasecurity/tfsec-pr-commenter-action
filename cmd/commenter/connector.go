@@ -94,17 +94,31 @@ For more information, see https://tfsec.dev/docs/%s/%s/`, result.code, result.de
 		}
 	}
 
-	comment := &github.PullRequestComment{
-		Line:     &result.startLine,
-		Path:     &result.fileName,
-		CommitID: &result.sha,
-		Body:     &errorMessage,
-		Position: &result.position,
-	}
+	comment := createComment(result, errorMessage)
 	fmt.Printf("%+v\n", comment)
 	_, _, err := gc.client.PullRequests.CreateComment(gc.ctx, gc.owner, gc.repo, gc.prNumber, comment)
 	if err != nil {
 		fmt.Println("Error occurred %s", err.Error())
+	}
+}
+
+func createComment(result *commentBlock, errorMessage string) *github.PullRequestComment {
+	if result.startLine == result.endLine {
+		return &github.PullRequestComment{
+			Line:     &result.startLine,
+			Path:     &result.fileName,
+			CommitID: &result.sha,
+			Body:     &errorMessage,
+			Position: &result.position,
+		}
+	}
+	return &github.PullRequestComment{
+		StartLine: &result.startLine,
+		Line:      &result.endLine,
+		Path:      &result.fileName,
+		CommitID:  &result.sha,
+		Body:      &errorMessage,
+		Position:  &result.position,
 	}
 }
 
