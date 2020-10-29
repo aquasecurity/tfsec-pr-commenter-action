@@ -1,0 +1,24 @@
+name: 'Run tfsec PR commenter'
+description: 'Runs tfsec and adds comments to the PR where checks have failed'
+author: 'Owen Rumney'
+
+inputs:
+  github_token:
+    description: 'GITHUB_TOKEN'
+    required: true
+  working_directory:
+    description: |
+      Directory to run the action on, from the repo root.
+      Default is . ( root of the repository)
+    default: '.'
+  sarif_file:
+    description: The path to write the sarif report, defaults to tfsec.sarif
+outputs:
+  tfsec-return-code:
+    description: 'tfsec command return code'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'search'
+  color: 'gray-dark'
