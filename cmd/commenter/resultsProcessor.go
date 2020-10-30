@@ -15,40 +15,7 @@ import (
 var patchRegex *regexp.Regexp
 var commitRefRegex *regexp.Regexp
 
-type commitFileInfo struct {
-	fileName  string
-	hunkStart int
-	hunkEnd   int
-	sha       string
-}
-
-type commentBlock struct {
-	fileName    string
-	startLine   int
-	endLine     int
-	position    int
-	sha         string
-	code        string
-	description string
-	provider    string
-}
-
-type checkRange struct {
-	Filename  string `json:"filename"`
-	StartLine int    `json:"start_line"`
-	EndLine   int    `json:"end_line"`
-}
-
-type result struct {
-	RuleID          string      `json:"rule_id"`
-	RuleDescription string      `json:"rule_description"`
-	RuleProvider    string      `json:"rule_provider"`
-	Link            string      `json:"link"`
-	Range           *checkRange `json:"location"`
-	Description     string      `json:"description"`
-	RangeAnnotation string      `json:"-"`
-	Severity        string      `json:"severity"`
-}
+const resultsFile = "results.json"
 
 func init() {
 	regex, err := regexp.Compile("^@@.*\\+(\\d+),(\\d+).+?@@")
@@ -67,7 +34,7 @@ func init() {
 func loadResultsFile() ([]*result, error) {
 	results := struct{ Results []*result }{}
 
-	file, err := ioutil.ReadFile("results.json")
+	file, err := ioutil.ReadFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

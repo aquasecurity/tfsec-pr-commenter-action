@@ -19,11 +19,9 @@ type githubConnector struct {
 	owner    string
 	repo     string
 	prNumber int
-	commitId string
 }
 
 func newConnector() (*githubConnector, error) {
-
 	token := os.Getenv("INPUT_GITHUB_TOKEN")
 	if len(token) == 0 {
 		return nil, errors.New("the INPUT_GITHUB_TOKEN has not been set")
@@ -40,14 +38,14 @@ func newConnector() (*githubConnector, error) {
 	githubRepository := os.Getenv("GITHUB_REPOSITORY")
 	split := strings.Split(githubRepository, "/")
 	if len(split) != 2 {
-		panic(fmt.Sprintf("Expected value for split not found. Expected 2 in %v", split))
+		return nil, errors.New(fmt.Sprintf("Expected value for split not found. Expected 2 in %v", split))
 	}
 	owner := split[0]
 	repo := split[1]
-	commitId := os.Getenv("GITHUB_SHA")
+
 	prNo, err := extractPullRequestNumber()
 	if err != nil {
-		panic("unable to get the PR number, can't continue")
+		return nil, errors.New("unable to get the PR number, can't continue")
 	}
 
 	return &githubConnector{
@@ -56,8 +54,23 @@ func newConnector() (*githubConnector, error) {
 		owner:    owner,
 		repo:     repo,
 		prNumber: prNo,
-		commitId: commitId,
 	}, nil
+}
+
+func extractPullRequestNumber() (int, error) {
+	file, err := ioutil.ReadFile("/github/workflow/event.json")
+	if err != nil {
+		return -1, err
+	}
+
+	var data interface{}
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		return -1, err
+	}
+	payload := data.(map[string]interface{})
+
+	return strconv.Atoi(fmt.Sprintf("%v", payload["number"]))
 }
 
 func (gc *githubConnector) getPrFiles() ([]*github.CommitFile, error) {
@@ -70,7 +83,6 @@ func (gc *githubConnector) getPrFiles() ([]*github.CommitFile, error) {
 		if *file.Status != "deleted" {
 			commitFiles = append(commitFiles, file)
 		}
-
 	}
 	return commitFiles, nil
 }
@@ -88,11 +100,7 @@ func (gc *githubConnector) getExistingComments() ([]string, error) {
 }
 
 func (gc *githubConnector) commentOnPrResult(result *commentBlock, existingComments []string) {
-	errorMessage := fmt.Sprintf(`tfsec check %s failed. 
-
-%s
-
-For more information, see https://tfsec.dev/docs/%s/%s/`, result.code, result.description, strings.ToLower(result.provider), result.code)
+	errorMessage := generateErrorMessage(result)
 
 	for _, existingComment := range existingComments {
 		if errorMessage == existingComment {
@@ -118,6 +126,7 @@ func buildComment(result *commentBlock, errorMessage string) *github.PullRequest
 		Position: &result.position,
 	}
 
+	// if multi-line result, update the start and end position
 	if result.startLine != result.endLine {
 		comment.StartLine = &result.startLine
 		comment.Line = &result.endLine
@@ -125,18 +134,12 @@ func buildComment(result *commentBlock, errorMessage string) *github.PullRequest
 	return comment
 }
 
-func extractPullRequestNumber() (int, error) {
-	file, err := ioutil.ReadFile("/github/workflow/event.json")
-	if err != nil {
-		return -1, err
-	}
+func generateErrorMessage(result *commentBlock) string {
+	errorMessage := fmt.Sprintf(`tfsec check %s failed. 
 
-	var data interface{}
-	err = json.Unmarshal(file, &data)
-	if err != nil {
-		return -1, err
-	}
-	payload := data.(map[string]interface{})
+%s
 
-	return strconv.Atoi(fmt.Sprintf("%v", payload["number"]))
+For more information, see https://tfsec.dev/docs/%s/%s/`,
+		result.code, result.description, strings.ToLower(result.provider), result.code)
+	return errorMessage
 }
