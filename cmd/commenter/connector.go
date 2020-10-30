@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/google/go-github/v32/github"
 	"golang.org/x/oauth2"
@@ -21,7 +22,13 @@ type githubConnector struct {
 	commitId string
 }
 
-func newConnector() *githubConnector {
+func newConnector() (*githubConnector, error) {
+
+	token := os.Getenv("INPUT_GITHUB_TOKEN")
+	if len(token) == 0 {
+		return nil, errors.New("the INPUT_GITHUB_TOKEN has not been set")
+	}
+
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("INPUT_GITHUB_TOKEN")},
@@ -38,7 +45,7 @@ func newConnector() *githubConnector {
 	owner := split[0]
 	repo := split[1]
 	commitId := os.Getenv("GITHUB_SHA")
-	prNo, err := getPrNumber()
+	prNo, err := extractPullRequestNumber()
 	if err != nil {
 		panic("unable to get the PR number, can't continue")
 	}
@@ -50,7 +57,7 @@ func newConnector() *githubConnector {
 		repo:     repo,
 		prNumber: prNo,
 		commitId: commitId,
-	}
+	}, nil
 }
 
 func (gc *githubConnector) getPrFiles() ([]*github.CommitFile, error) {
@@ -87,14 +94,14 @@ func (gc *githubConnector) commentOnPrResult(result *commentBlock, existingComme
 
 For more information, see https://tfsec.dev/docs/%s/%s/`, result.code, result.description, strings.ToLower(result.provider), result.code)
 
-	// check the commment isn't already there
 	for _, existingComment := range existingComments {
 		if errorMessage == existingComment {
+			// don't create the comment, its already there for this block
 			return
 		}
 	}
 
-	comment := createComment(result, errorMessage)
+	comment := buildComment(result, errorMessage)
 	fmt.Printf("%+v\n", comment)
 	_, _, err := gc.client.PullRequests.CreateComment(gc.ctx, gc.owner, gc.repo, gc.prNumber, comment)
 	if err != nil {
@@ -102,27 +109,23 @@ For more information, see https://tfsec.dev/docs/%s/%s/`, result.code, result.de
 	}
 }
 
-func createComment(result *commentBlock, errorMessage string) *github.PullRequestComment {
-	if result.startLine == result.endLine {
-		return &github.PullRequestComment{
-			Line:     &result.startLine,
-			Path:     &result.fileName,
-			CommitID: &result.sha,
-			Body:     &errorMessage,
-			Position: &result.position,
-		}
+func buildComment(result *commentBlock, errorMessage string) *github.PullRequestComment {
+	comment := &github.PullRequestComment{
+		Line:     &result.startLine,
+		Path:     &result.fileName,
+		CommitID: &result.sha,
+		Body:     &errorMessage,
+		Position: &result.position,
 	}
-	return &github.PullRequestComment{
-		StartLine: &result.startLine,
-		Line:      &result.endLine,
-		Path:      &result.fileName,
-		CommitID:  &result.sha,
-		Body:      &errorMessage,
-		Position:  &result.position,
+
+	if result.startLine != result.endLine {
+		comment.StartLine = &result.startLine
+		comment.Line = &result.endLine
 	}
+	return comment
 }
 
-func getPrNumber() (int, error) {
+func extractPullRequestNumber() (int, error) {
 	file, err := ioutil.ReadFile("/github/workflow/event.json")
 	if err != nil {
 		return -1, err

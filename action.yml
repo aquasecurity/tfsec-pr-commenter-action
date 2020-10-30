@@ -11,8 +11,6 @@ inputs:
       Directory to run the action on, from the repo root.
       Default is . ( root of the repository)
     default: '.'
-  sarif_file:
-    description: The path to write the sarif report, defaults to tfsec.sarif
 outputs:
   tfsec-return-code:
     description: 'tfsec command return code'

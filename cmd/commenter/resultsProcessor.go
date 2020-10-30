@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-var patchRegex, _ = regexp.Compile("^@@.*\\+(\\d+),(\\d+).+?@@")
-var commitRefRegex, _ = regexp.Compile(".+ref=(.+)")
+var patchRegex *regexp.Regexp
+var commitRefRegex *regexp.Regexp
 
 type commitFileInfo struct {
 	fileName  string
@@ -48,6 +48,20 @@ type result struct {
 	Description     string      `json:"description"`
 	RangeAnnotation string      `json:"-"`
 	Severity        string      `json:"severity"`
+}
+
+func init() {
+	regex, err := regexp.Compile("^@@.*\\+(\\d+),(\\d+).+?@@")
+	if err != nil {
+		fail(err)
+	}
+	patchRegex = regex
+
+	regex, err = regexp.Compile(".+ref=(.+)")
+	if err != nil {
+		fail(err)
+	}
+	commitRefRegex = regex
 }
 
 func loadResultsFile() ([]*result, error) {

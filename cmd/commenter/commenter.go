@@ -8,7 +8,11 @@ import (
 func main() {
 	fmt.Println("Starting the github commenter...")
 
-	gc := newConnector()
+	gc, err := newConnector()
+	if err != nil {
+		fail(err)
+	}
+
 	files, err := gc.getPrFiles()
 	if err != nil {
 		fail(err)
