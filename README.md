@@ -32,4 +32,4 @@ The comment will only be added once per transgression.
 
 The screenshot below demonstrates the comments that can be expected when using the action
 
-![Example PR Comment](pr_commenter.png)
+![Example PR Comment](images/pr_commenter.png)
