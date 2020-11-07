@@ -1,0 +1,84 @@
+package go_github_pr_commenter
+
+import (
+	"context"
+	"github.com/google/go-github/v32/github"
+	"golang.org/x/oauth2"
+)
+
+type connector struct {
+	prs      *github.PullRequestsService
+	owner    string
+	repo     string
+	prNumber int
+}
+
+type existingComment struct {
+	filename *string
+	comment  *string
+}
+
+func createConnector(token, owner, repo string, prNumber int) *connector {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+	tc := oauth2.NewClient(ctx, ts)
+
+	client := github.NewClient(tc)
+
+	return &connector{
+		prs:      client.PullRequests,
+		owner:    owner,
+		repo:     repo,
+		prNumber: prNumber,
+	}
+}
+
+func (c *connector) writeReviewComment(block *github.PullRequestComment) error {
+	ctx := context.Background()
+
+	var _, _, err = c.prs.CreateComment(ctx, c.owner, c.repo, c.prNumber, block)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *connector) getFilesForPr() ([]*github.CommitFile, error) {
+	files, _, err := c.prs.ListFiles(context.Background(), c.owner, c.repo, c.prNumber, nil)
+	if err != nil {
+		return nil, err
+	}
+	var commitFiles []*github.CommitFile
+	for _, file := range files {
+		if *file.Status != "deleted" {
+			commitFiles = append(commitFiles, file)
+		}
+	}
+	return commitFiles, nil
+}
+
+func (c *connector) getExistingComments() ([]*existingComment, error) {
+	ctx := context.Background()
+
+	comments, _, err := c.prs.ListComments(ctx, c.owner, c.repo, c.prNumber, &github.PullRequestListCommentsOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	var existingComments []*existingComment
+	for _, comment := range comments {
+		existingComments = append(existingComments, &existingComment{
+			filename: comment.Path,
+			comment:  comment.Body,
+		})
+	}
+	return existingComments, nil
+}
+
+func (c *connector) prExists() bool {
+	ctx := context.Background()
+
+	_, _, err := c.prs.Get(ctx, c.owner, c.repo, c.prNumber)
+	return err == nil
+}
