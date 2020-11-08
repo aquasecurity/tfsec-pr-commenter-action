@@ -1,4 +1,4 @@
-package go_github_pr_commenter
+package commenter
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type commenter struct {
+type Commenter struct {
 	pr               *connector
 	existingComments []*existingComment
 	files            []*CommitFileInfo
@@ -19,8 +19,8 @@ type commenter struct {
 var patchRegex *regexp.Regexp
 var commitRefRegex *regexp.Regexp
 
-// NewCommenter creates a commenter for updating PR with comments
-func NewCommenter(token, owner, repo string, prNumber int) (*commenter, error) {
+// NewCommenter creates a Commenter for updating PR with comments
+func NewCommenter(token, owner, repo string, prNumber int) (*Commenter, error) {
 	regex, err := regexp.Compile("^@@.*\\+(\\d+),(\\d+).+?@@")
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func NewCommenter(token, owner, repo string, prNumber int) (*commenter, error) {
 	commitRefRegex = regex
 
 	if len(token) == 0 {
-		return nil, errors.New("the INPUT_GITHUB_TOKEN has not been set")
+		return nil, errors.New("the GITHUB_TOKEN has not been set")
 	}
 
 	connector := createConnector(token, owner, repo, prNumber)
@@ -43,14 +43,14 @@ func NewCommenter(token, owner, repo string, prNumber int) (*commenter, error) {
 		return nil, newPrDoesNotExistError(connector)
 	}
 
-	c := &commenter{
+	c := &Commenter{
 		pr: connector,
 	}
 	return c, nil
 }
 
 // WriteMultiLineComment writes a multiline review on a file in the github PR
-func (c *commenter) WriteMultiLineComment(file, comment string, startLine, endLine int) error {
+func (c *Commenter) WriteMultiLineComment(file, comment string, startLine, endLine int) error {
 	if !c.loaded {
 		err := c.loadPr()
 		if err != nil {
@@ -77,7 +77,7 @@ func (c *commenter) WriteMultiLineComment(file, comment string, startLine, endLi
 }
 
 // WriteLineComment writes a single review line on a file of the github PR
-func (c *commenter) WriteLineComment(file, comment string, line int) error {
+func (c *Commenter) WriteLineComment(file, comment string, line int) error {
 	if !c.loaded {
 		err := c.loadPr()
 		if err != nil {
@@ -97,7 +97,7 @@ func (c *commenter) WriteLineComment(file, comment string, line int) error {
 	return c.writeCommentIfRequired(prComment)
 }
 
-func (c *commenter) writeCommentIfRequired(prComment *github.PullRequestComment) error {
+func (c *Commenter) writeCommentIfRequired(prComment *github.PullRequestComment) error {
 	for _, existing := range c.existingComments {
 		err := func(ec *existingComment) error {
 			if *ec.filename == *prComment.Path && *ec.comment == *prComment.Body {
@@ -113,7 +113,7 @@ func (c *commenter) writeCommentIfRequired(prComment *github.PullRequestComment)
 	return c.pr.writeReviewComment(prComment)
 }
 
-func (c *commenter) getCommitFileInfo() error {
+func (c *Commenter) getCommitFileInfo() error {
 	prFiles, err := c.pr.getFilesForPr()
 	if err != nil {
 		return err
@@ -133,7 +133,7 @@ func (c *commenter) getCommitFileInfo() error {
 	return nil
 }
 
-func (c *commenter) loadPr() error {
+func (c *Commenter) loadPr() error {
 	err := c.getCommitFileInfo()
 	if err != nil {
 		return err
@@ -147,7 +147,7 @@ func (c *commenter) loadPr() error {
 	return nil
 }
 
-func (c *commenter) checkCommentRelevant(filename string, line int) bool {
+func (c *Commenter) checkCommentRelevant(filename string, line int) bool {
 	for _, file := range c.files {
 		if relevant := func(file *CommitFileInfo) bool {
 			if file.FileName == filename {
@@ -162,7 +162,8 @@ func (c *commenter) checkCommentRelevant(filename string, line int) bool {
 	}
 	return false
 }
-func (c *commenter) getFileInfo(file string, line int) (*CommitFileInfo, error) {
+
+func (c *Commenter) getFileInfo(file string, line int) (*CommitFileInfo, error) {
 	for _, info := range c.files {
 		if info.FileName == file {
 			if line > info.hunkStart && line < info.hunkEnd {
@@ -170,7 +171,7 @@ func (c *commenter) getFileInfo(file string, line int) (*CommitFileInfo, error) 
 			}
 		}
 	}
-	return nil, newNotPartOfPrError(file)
+	return nil, errors.New("file not found, shouldn't have got to here")
 }
 
 func buildComment(file, comment string, line int, info CommitFileInfo) *github.PullRequestComment {

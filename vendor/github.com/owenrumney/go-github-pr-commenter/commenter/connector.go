@@ -1,4 +1,4 @@
-package go_github_pr_commenter
+package commenter
 
 import (
 	"context"

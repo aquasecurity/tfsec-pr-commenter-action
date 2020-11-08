@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/owenrumney/go-github-pr-commenter"
+	"github.com/owenrumney/go-github-pr-commenter/commenter"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting the github commenter...")
+	fmt.Println("Starting the github c...")
 
 	token := os.Getenv("INPUT_GITHUB_TOKEN")
 	if len(token) == 0 {
@@ -31,7 +31,7 @@ func main() {
 		fail(err.Error())
 	}
 
-	commenter, err := go_github_pr_commenter.NewCommenter(token, owner, repo, prNo)
+	c, err := commenter.NewCommenter(token, owner, repo, prNo)
 	if err != nil {
 		fail(err.Error())
 	}
@@ -46,12 +46,12 @@ func main() {
 		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
 		fmt.Printf("Processing %s\n", result.Range.Filename)
 		comment := generateErrorMessage(result)
-		err := commenter.WriteMultiLineComment(result.Range.Filename, comment, result.Range.StartLine, result.Range.EndLine)
+		err := c.WriteMultiLineComment(result.Range.Filename, comment, result.Range.StartLine, result.Range.EndLine)
 		if err != nil {
 			// don't error if its simply that the comments aren't valid for the PR
 			switch err.(type) {
-			case go_github_pr_commenter.CommentAlreadyWrittenError:
-			case go_github_pr_commenter.CommentNotValidError:
+			case commenter.CommentAlreadyWrittenError:
+			case commenter.CommentNotValidError:
 				fmt.Println(err.Error())
 			default:
 				errMessages = append(errMessages, err.Error())
