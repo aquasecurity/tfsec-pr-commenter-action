@@ -1,9 +1,9 @@
 FROM golang:alpine AS builder
 
 ENV SRCPATH $GOPATH/src/commenter
+ENV GO111MODULE auto
 COPY ./ $SRCPATH
 RUN go install $SRCPATH/cmd/commenter
-
 
 FROM alpine:3.12
 
