@@ -41,7 +41,7 @@ func main() {
 		fail(err.Error())
 	}
 
-	var errMessages []error
+	var errMessages []string
 	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
 	for _, result := range results {
 		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
@@ -52,17 +52,17 @@ func main() {
 			switch err.(type) {
 			case commenter.CommentAlreadyWrittenError:
 			case commenter.CommentNotValidError:
-				errMessages = append(errMessages, err)
+				continue
 			default:
-				errMessages = append(errMessages, fmt.Errorf("error %s: Range: %#v", err.Error(), result.Range))
+				errMessages = append(errMessages, err.Error())
 			}
 		}
 	}
 
 	if len(errMessages) > 0 {
-		fmt.Printf("There were %d errors:", len(errMessages))
+		fmt.Printf("There were %d errors:\n", len(errMessages))
 		for _, err := range errMessages {
-			fmt.Printf("%#v", err)
+			fmt.Println(err)
 		}
 	}
 }

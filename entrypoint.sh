@@ -9,5 +9,5 @@ fi
 if ! tfsec --format=json "${INPUT_WORKING_DIRECTORY}" > results.json
 then
   echo "tfsec errors occurred, running commenter..."
-  /commenter
+  commenter
 fi
