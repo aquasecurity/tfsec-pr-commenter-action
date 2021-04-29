@@ -2,7 +2,6 @@ package commenter
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/go-github/v32/github"
 	"golang.org/x/oauth2"
@@ -40,7 +39,6 @@ func createConnector(token, owner, repo string, prNumber int) *connector {
 func (c *connector) writeReviewComment(block *github.PullRequestComment) error {
 	ctx := context.Background()
 
-	fmt.Printf("Writing comment to %d\n", block.Line)
 	var _, _, err = c.prs.CreateComment(ctx, c.owner, c.repo, c.prNumber, block)
 	if err != nil {
 		return err
