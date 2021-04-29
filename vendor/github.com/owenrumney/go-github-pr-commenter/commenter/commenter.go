@@ -63,6 +63,7 @@ func (c *Commenter) WriteMultiLineComment(file, comment string, startLine, endLi
 	if !c.checkCommentRelevant(file, startLine) || !c.checkCommentRelevant(file, endLine) {
 		return newCommentNotValidError(file, startLine)
 	}
+	fmt.Println("it is relevant")
 
 	if startLine == endLine {
 		fmt.Printf("comment is single line\n")
