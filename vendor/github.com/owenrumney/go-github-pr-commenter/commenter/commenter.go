@@ -60,7 +60,7 @@ func (c *Commenter) WriteMultiLineComment(file, comment string, startLine, endLi
 		}
 	}
 
-	if !c.checkCommentRelevant(file, endLine) {
+	if !c.checkCommentRelevant(file, startLine) || !c.checkCommentRelevant(file, endLine) {
 		return newCommentNotValidError(file, startLine)
 	}
 
@@ -106,7 +106,6 @@ func (c *Commenter) WriteGeneralComment(comment string) error {
 			return err
 		}
 	}
-
 	issueComment := &github.IssueComment{
 		Body: &comment,
 	}
@@ -114,17 +113,16 @@ func (c *Commenter) WriteGeneralComment(comment string) error {
 }
 
 func (c *Commenter) writeCommentIfRequired(prComment *github.PullRequestComment) error {
-	updating := false
+	var commentId *int64
 	for _, existing := range c.existingComments {
-		updating = func(ec *existingComment) bool {
+		commentId = func(ec *existingComment) *int64 {
 			if *ec.filename == *prComment.Path && *ec.comment == *prComment.Body {
-				return true
+				return ec.commentId
 			}
-			return false
+			return nil
 		}(existing)
-
 	}
-	return c.pr.writeReviewComment(prComment, updating)
+	return c.pr.writeReviewComment(prComment, commentId)
 }
 
 func (c *Commenter) getCommitFileInfo() error {
