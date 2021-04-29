@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/owenrumney/go-github-pr-commenter/commenter"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/owenrumney/go-github-pr-commenter/commenter"
 )
 
 func main() {
@@ -40,27 +41,30 @@ func main() {
 		fail(err.Error())
 	}
 
-	var errMessages []string
+	var errMessages []error
 	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
 	for _, result := range results {
 		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
-		fmt.Printf("Processing %s\n", result.Range.Filename)
 		comment := generateErrorMessage(result)
+		fmt.Printf("range: %#v, comment: %s \n", result.Range, comment)
 		err := c.WriteMultiLineComment(result.Range.Filename, comment, result.Range.StartLine, result.Range.EndLine)
 		if err != nil {
 			// don't error if its simply that the comments aren't valid for the PR
 			switch err.(type) {
 			case commenter.CommentAlreadyWrittenError:
 			case commenter.CommentNotValidError:
-				fmt.Println(err.Error())
+				errMessages = append(errMessages, err)
 			default:
-				errMessages = append(errMessages, err.Error())
+				errMessages = append(errMessages, fmt.Errorf("error %s: Range: %#v", err.Error(), result.Range))
 			}
 		}
 	}
 
 	if len(errMessages) > 0 {
-		fail(fmt.Sprintf("There were errors: \n%v", strings.Join(errMessages, "\n")))
+		fmt.Printf("There were %d errors:", len(errMessages))
+		for _, err := range errMessages {
+			fmt.Printf("%#v", err)
+		}
 	}
 }
 

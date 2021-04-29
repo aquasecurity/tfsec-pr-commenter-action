@@ -4,10 +4,10 @@ github.com/golang/protobuf/proto
 github.com/google/go-github/v32/github
 # github.com/google/go-querystring v1.0.0
 github.com/google/go-querystring/query
-# github.com/owenrumney/go-github-pr-commenter v0.0.5
+# github.com/owenrumney/go-github-pr-commenter v0.0.10
 ## explicit
 github.com/owenrumney/go-github-pr-commenter/commenter
-# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+# golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 golang.org/x/crypto/cast5
 golang.org/x/crypto/openpgp
 golang.org/x/crypto/openpgp/armor
@@ -15,7 +15,7 @@ golang.org/x/crypto/openpgp/elgamal
 golang.org/x/crypto/openpgp/errors
 golang.org/x/crypto/openpgp/packet
 golang.org/x/crypto/openpgp/s2k
-# golang.org/x/net v0.0.0-20190311183353-d8887717615a
+# golang.org/x/net v0.0.0-20201021035429-f5854403a974
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
 # golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be

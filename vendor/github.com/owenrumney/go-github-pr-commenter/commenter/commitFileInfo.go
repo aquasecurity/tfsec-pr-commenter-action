@@ -1,13 +1,13 @@
 package commenter
 
-type CommitFileInfo struct {
+type commitFileInfo struct {
 	FileName  string
 	hunkStart int
 	hunkEnd   int
 	sha       string
 }
 
-func (cfi CommitFileInfo) CalculatePosition(line int) *int {
+func (cfi commitFileInfo) calculatePosition(line int) *int {
 	position := line - cfi.hunkStart
 	return &position
 }

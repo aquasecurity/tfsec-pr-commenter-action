@@ -2,16 +2,19 @@ package commenter
 
 import "fmt"
 
+// CommentAlreadyWrittenError returned when the error can't be written as it already exists
 type CommentAlreadyWrittenError struct {
 	filepath string
 	comment  string
 }
 
+// CommentNotValidError returned when the comment is for a file or line not in the pr
 type CommentNotValidError struct {
 	filepath string
 	lineNo   int
 }
 
+// PrDoesNotExistError returned when the PR can't be found, either as 401 or not existing
 type PrDoesNotExistError struct {
 	owner    string
 	repo     string
