@@ -16,8 +16,9 @@ type connector struct {
 }
 
 type existingComment struct {
-	filename *string
-	comment  *string
+	filename  *string
+	comment   *string
+	commentId *int64
 }
 
 func createConnector(token, owner, repo string, prNumber int) *connector {
@@ -36,14 +37,19 @@ func createConnector(token, owner, repo string, prNumber int) *connector {
 	}
 }
 
-func (c *connector) writeReviewComment(block *github.PullRequestComment) error {
+func (c *connector) writeReviewComment(block *github.PullRequestComment, commentId *int64) error {
 	ctx := context.Background()
 
+	if commentId != nil {
+		var _, err = c.prs.DeleteComment(ctx, c.owner, c.repo, *commentId)
+		if err != nil {
+			return err
+		}
+	}
 	var _, _, err = c.prs.CreateComment(ctx, c.owner, c.repo, c.prNumber, block)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -83,8 +89,9 @@ func (c *connector) getExistingComments() ([]*existingComment, error) {
 	var existingComments []*existingComment
 	for _, comment := range comments {
 		existingComments = append(existingComments, &existingComment{
-			filename: comment.Path,
-			comment:  comment.Body,
+			filename:  comment.Path,
+			comment:   comment.Body,
+			commentId: comment.ID,
 		})
 	}
 	return existingComments, nil
