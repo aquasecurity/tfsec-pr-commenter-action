@@ -36,14 +36,20 @@ func createConnector(token, owner, repo string, prNumber int) *connector {
 	}
 }
 
-func (c *connector) writeReviewComment(block *github.PullRequestComment) error {
+func (c *connector) writeReviewComment(block *github.PullRequestComment, update bool) error {
 	ctx := context.Background()
 
-	var _, _, err = c.prs.CreateComment(ctx, c.owner, c.repo, c.prNumber, block)
-	if err != nil {
-		return err
+	if update {
+		var _, _, err = c.prs.CreateComment(ctx, c.owner, c.repo, c.prNumber, block)
+		if err != nil {
+			return err
+		}
+	} else {
+		var _, _, err = c.prs.CreateComment(ctx, c.owner, c.repo, c.prNumber, block)
+		if err != nil {
+			return err
+		}
 	}
-
 	return nil
 }
 

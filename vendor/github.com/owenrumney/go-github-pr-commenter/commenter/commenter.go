@@ -114,19 +114,17 @@ func (c *Commenter) WriteGeneralComment(comment string) error {
 }
 
 func (c *Commenter) writeCommentIfRequired(prComment *github.PullRequestComment) error {
+	updating := false
 	for _, existing := range c.existingComments {
-		err := func(ec *existingComment) error {
+		updating = func(ec *existingComment) bool {
 			if *ec.filename == *prComment.Path && *ec.comment == *prComment.Body {
-				return newCommentAlreadyWrittenError(*existing.filename, *existing.comment)
+				return true
 			}
-			return nil
+			return false
 		}(existing)
-		if err != nil {
-			return err
-		}
 
 	}
-	return c.pr.writeReviewComment(prComment)
+	return c.pr.writeReviewComment(prComment, updating)
 }
 
 func (c *Commenter) getCommitFileInfo() error {
