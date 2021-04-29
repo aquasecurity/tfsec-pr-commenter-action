@@ -4,7 +4,7 @@ github.com/golang/protobuf/proto
 github.com/google/go-github/v32/github
 # github.com/google/go-querystring v1.0.0
 github.com/google/go-querystring/query
-# github.com/owenrumney/go-github-pr-commenter v0.0.10
+# github.com/owenrumney/go-github-pr-commenter v0.0.9
 ## explicit
 github.com/owenrumney/go-github-pr-commenter/commenter
 # golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
