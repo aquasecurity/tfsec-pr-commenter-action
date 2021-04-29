@@ -18,5 +18,5 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
 branding:
-  icon: 'github-pull-request'
+  icon: 'git-pull-request'
   color: 'purple'
