@@ -63,19 +63,15 @@ func (c *Commenter) WriteMultiLineComment(file, comment string, startLine, endLi
 	if !c.checkCommentRelevant(file, startLine) || !c.checkCommentRelevant(file, endLine) {
 		return newCommentNotValidError(file, startLine)
 	}
-	fmt.Println("it is relevant")
 
 	if startLine == endLine {
-		fmt.Printf("comment is single line\n")
 		return c.WriteLineComment(file, comment, endLine)
 	}
 
-	fmt.Printf("getting file info\n")
 	info, err := c.getFileInfo(file, endLine)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("got file info %#v\n", info)
 
 	prComment := buildComment(file, comment, endLine, *info)
 	prComment.StartLine = &startLine
@@ -130,7 +126,6 @@ func (c *Commenter) writeCommentIfRequired(prComment *github.PullRequestComment)
 		}
 
 	}
-	fmt.Println("Writing the review comment")
 	return c.pr.writeReviewComment(prComment)
 }
 

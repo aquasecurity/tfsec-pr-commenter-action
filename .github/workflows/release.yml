@@ -1,0 +1,38 @@
+name: tfsec pr commenter release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: releasing tfsec
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - uses: actions/setup-go@v2
+      with:
+        stable: 'false'
+        go-version: '1.16.2' # The Go version to download (if necessary) and use.
+    - run: go version
+    
+    - name: Get Tag
+      id: get_tag
+      run: |
+        echo ::set-output name=TRAVIS_TAG::${GITHUB_REF#refs/tags/}
+    
+    - name: Build artifacts
+      run: go install 
+      env:
+        TRAVIS_TAG: ${{ steps.get_tag.outputs.TRAVIS_TAG }}
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          bin/commenter
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

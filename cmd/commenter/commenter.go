@@ -46,7 +46,6 @@ func main() {
 	for _, result := range results {
 		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
 		comment := generateErrorMessage(result)
-		fmt.Printf("range: %#v, comment: %s \n", result.Range, comment)
 		err := c.WriteMultiLineComment(result.Range.Filename, comment, result.Range.StartLine, result.Range.EndLine)
 		if err != nil {
 			// don't error if its simply that the comments aren't valid for the PR
