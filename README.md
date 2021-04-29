@@ -21,7 +21,7 @@ jobs:
       - name: tfsec
         uses: tfsec/tfsec-pr-commenter-action@main
         with:
-          github_token: ${{ github_token }}
+          github_token: ${{ github.token }}
 ```
 
 On each pull request and subsequent commit, tfsec will run and add comments to the PR where tfsec has failed. 
