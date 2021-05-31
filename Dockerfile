@@ -3,7 +3,7 @@ FROM alpine:3.12
 RUN apk --no-cache --update add bash git \
     && rm -rf /var/cache/apk/*
 
-RUN wget -O - -q "$(wget -q https://api.github.com/repos/tfsec/tfsec/releases/latest -O - | grep -o -E "https://.+?tfsec-linux-amd64")" > tfsec \
+RUN wget -O - -q "$(wget -q https://api.github.com/repos/tfsec/tfsec/releases/latest -O - | grep -o -E "https://.+?tfsec-linux-amd64" | head -n1)" > tfsec \
     && install tfsec /usr/local/bin/
 
 RUN wget -O - -q "$(wget -q https://api.github.com/repos/tfsec/tfsec-pr-commenter-action/releases/latest -O - | grep -o -E "https://.+?commenter-linux-amd64")" > commenter \
