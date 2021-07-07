@@ -51,11 +51,15 @@ func main() {
 			// don't error if its simply that the comments aren't valid for the PR
 			switch err.(type) {
 			case commenter.CommentAlreadyWrittenError:
+				fmt.Println("Comment already written so not writing")
 			case commenter.CommentNotValidError:
+				fmt.Printf("Comment not written [%s], not part of the current PR\n", result.Description)
 				continue
 			default:
 				errMessages = append(errMessages, err.Error())
 			}
+		} else {
+			fmt.Printf("Writing comment to %s:%d:%d", result.Range.Filename, result.Range.StartLine, result.Range.EndLine)
 		}
 	}
 

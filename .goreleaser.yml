@@ -1,0 +1,31 @@
+before:
+  hooks:
+    - go mod tidy
+    - go mod vendor
+builds:
+  - 
+    id: commenter
+    main: ./cmd/commenter
+    binary: commenter
+    env:
+      - CGO_ENABLED=0
+      - GOFLAGS=-mod=vendor
+    goos:
+      - linux
+    goarch:
+      - amd64
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+archives:
+  -
+    format: binary
+    name_template: "{{ .Binary}}-{{ .Os }}-{{ .Arch }}"
+
+release:
+  prerelease: auto
+  github:
+    owner: tfsec
+    name: tfsec-pr-commenter-action
+
