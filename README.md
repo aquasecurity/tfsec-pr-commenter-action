@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: tfsec
-        uses: tfsec/tfsec-pr-commenter-action@main
+        uses: aquasecurity/tfsec-pr-commenter-action@main
         with:
           github_token: ${{ github.token }}
 ```
