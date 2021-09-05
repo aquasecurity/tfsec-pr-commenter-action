@@ -76,8 +76,10 @@ func generateErrorMessage(result result) string {
 
 %s
 
-For more information, see https://tfsec.dev/docs/%s/%s/`,
-		result.RuleID, result.Description, strings.ToLower(result.RuleProvider), result.RuleID)
+For more information, see:
+
+%s`,
+		result.RuleID, result.Description, formatUrls(result.Links))
 }
 
 func extractPullRequestNumber() (int, error) {
@@ -94,6 +96,14 @@ func extractPullRequestNumber() (int, error) {
 	payload := data.(map[string]interface{})
 
 	return strconv.Atoi(fmt.Sprintf("%v", payload["number"]))
+}
+
+func formatUrls(urls []string) string {
+	urlList := ""
+	for _, url := range urls {
+		urlList += fmt.Sprintf("- %s\n", url)
+	}
+	return urlList
 }
 
 func fail(err string) {
