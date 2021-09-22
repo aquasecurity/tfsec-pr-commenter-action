@@ -34,11 +34,11 @@ func main() {
 
 	c, err := commenter.NewCommenter(token, owner, repo, prNo)
 	if err != nil {
-		fail(err.Error())
+		fail(fmt.Sprintf("failed to create a new commenter. %s", err.Error()))
 	}
 	results, err := loadResultsFile()
 	if err != nil {
-		fail(err.Error())
+		fail(fmt.Sprintf("failed to load results. %s", err.Error()))
 	}
 
 	var errMessages []string
