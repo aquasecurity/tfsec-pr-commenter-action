@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="354" src="./tfsec.png">
+</p>
+
 # tfsec-pr-commenter-action
 Add comments to pull requests where tfsec checks have failed
 
@@ -42,4 +46,3 @@ There are a number of optional inputs that can be used in the `with:` block.
 The screenshot below demonstrates the comments that can be expected when using the action
 
 ![Example PR Comment](images/pr_commenter.png)
-Q
