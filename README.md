@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="354" src="./tfsec.png">
+</p>
+
 # tfsec-pr-commenter-action
 Add comments to pull requests where tfsec checks have failed
 
