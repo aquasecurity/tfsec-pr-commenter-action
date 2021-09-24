@@ -17,7 +17,6 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@master
-
       - name: tfsec
         uses: aquasecurity/tfsec-pr-commenter-action@main
         with:
@@ -28,8 +27,19 @@ On each pull request and subsequent commit, tfsec will run and add comments to t
 
 The comment will only be added once per transgression.
 
+## Optional inputs
+
+There are a number of optional inputs that can be used in the `with:` block.
+
+**working_directory** - the directory to scan in, defaults to `.`, ie current working directory
+
+**tfsec_version** - the version of tfsec to use, defaults to `latest`
+
+**commenter_version** - the version of the commenter to use, defaults to `latest`
+
 ## Example PR Comment
 
 The screenshot below demonstrates the comments that can be expected when using the action
 
 ![Example PR Comment](images/pr_commenter.png)
+Q
