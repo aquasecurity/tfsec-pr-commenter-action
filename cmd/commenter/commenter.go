@@ -67,7 +67,7 @@ func main() {
 			}
 		} else {
 			validCommentWritten = true
-			fmt.Printf("Writing comment for %s to %s:%d:%d\n", result.Description, result.Range.Filename, result.Range.StartLine, result.Range.EndLine)
+			fmt.Printf("Commenting for %s to %s:%d:%d\n", result.Description, result.Range.Filename, result.Range.StartLine, result.Range.EndLine)
 		}
 	}
 
