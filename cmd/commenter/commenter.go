@@ -60,14 +60,14 @@ func main() {
 				fmt.Println("Comment already written so not writing")
 				validCommentWritten = true
 			case commenter.CommentNotValidError:
-				fmt.Printf("Comment not written [%s], not part of the current PR\n", result.Description)
+				fmt.Printf("%s .... not writing as not part of the current PR\n", result.Description)
 				continue
 			default:
 				errMessages = append(errMessages, err.Error())
 			}
 		} else {
 			validCommentWritten = true
-			fmt.Printf("Writing comment to %s:%d:%d\n", result.Range.Filename, result.Range.StartLine, result.Range.EndLine)
+			fmt.Printf("Writing comment for %s to %s:%d:%d\n", result.Description, result.Range.Filename, result.Range.StartLine, result.Range.EndLine)
 		}
 	}
 
