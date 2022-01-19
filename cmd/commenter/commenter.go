@@ -41,6 +41,11 @@ func main() {
 		fail(fmt.Sprintf("failed to load results. %s", err.Error()))
 	}
 
+	if len(results) == 0 {
+		fmt.Println("No issues found.")
+		os.Exit(0)
+	}
+
 	var errMessages []string
 	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
 	for _, result := range results {

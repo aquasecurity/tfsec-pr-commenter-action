@@ -43,6 +43,29 @@ There are a number of optional inputs that can be used in the `with:` block.
 
 **commenter_version** - the version of the commenter to use, defaults to `latest`
 
+### tfsec_vars
+
+`tfsec` provides an [extensive number of arguments](https://aquasecurity.github.io/tfsec/v0.63.1/getting-started/usage/) which can be passed through as in the example below;
+
+```yaml
+name: tfsec-pr-commenter
+on:
+  pull_request:
+jobs:
+  tfsec:
+    name: tfsec PR commenter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@master
+      - name: tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@main
+        with:
+          tfsec_vars: --soft-fail
+          github_token: ${{ github.token }}
+```
+
 ## Example PR Comment
 
 The screenshot below demonstrates the comments that can be expected when using the action
