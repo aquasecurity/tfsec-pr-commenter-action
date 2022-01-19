@@ -17,6 +17,7 @@ inputs:
     description: The version of tfsec to use, defaults to latest
     default: latest
   tfsec_args:
+    required: false
     description: |
       Space seperated args specified here will be added during tfsec execution.
       (eg. --force-all-dirs --verbose)
@@ -24,6 +25,9 @@ inputs:
     required: false
     description: The version of the PR commenter code to run, defaults to latest
     default: latest
+  soft_fail_commenter:
+    required: false
+    description: If set to `true` will silently comment without breaking the build
 outputs:
   tfsec-return-code:
     description: "tfsec command return code"
