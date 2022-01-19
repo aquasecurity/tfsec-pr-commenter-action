@@ -27,7 +27,7 @@ jobs:
           github_token: ${{ github.token }}
 ```
 
-On each pull request and subsequent commit, tfsec will run and add comments to the PR where tfsec has failed. 
+On each pull request and subsequent commit, tfsec will run and add comments to the PR where tfsec has failed.
 
 The comment will only be added once per transgression.
 
@@ -38,6 +38,8 @@ There are a number of optional inputs that can be used in the `with:` block.
 **working_directory** - the directory to scan in, defaults to `.`, ie current working directory
 
 **tfsec_version** - the version of tfsec to use, defaults to `latest`
+
+**tfsec_vars** - the args of the tfsec to use
 
 **commenter_version** - the version of the commenter to use, defaults to `latest`
 

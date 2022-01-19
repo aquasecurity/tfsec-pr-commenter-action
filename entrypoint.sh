@@ -7,7 +7,7 @@ if [ "$INPUT_TFSEC_VERSION" != "latest" ]; then
   TFSEC_VERSION="tags/${INPUT_TFSEC_VERSION}"
 fi
 
-wget -O - -q "$(wget -q https://api.github.com/repos/aquasecurity/tfsec/releases/${TFSEC_VERSION} -O - | grep -o -E "https://.+?tfsec-linux-amd64" | head -n1)" > tfsec 
+wget -O - -q "$(wget -q https://api.github.com/repos/aquasecurity/tfsec/releases/${TFSEC_VERSION} -O - | grep -o -E "https://.+?tfsec-linux-amd64" | head -n1)" > tfsec
 install tfsec /usr/local/bin/
 
 COMMENTER_VERSION="latest"
@@ -22,7 +22,11 @@ if [ -n "${GITHUB_WORKSPACE}" ]; then
   cd "${GITHUB_WORKSPACE}" || exit
 fi
 
-if ! tfsec --format=json "${INPUT_WORKING_DIRECTORY}" 2>/dev/null >results.json; then
+if [ -n "${INPUT_TFSEC_ARGS}" ]; then
+  TFSEC_ARGS_OPTION="${INPUT_TFSEC_ARGS}"
+fi
+
+if ! tfsec --format=json "${INPUT_WORKING_DIRECTORY}" ${TFSEC_ARGS_OPTION} 2>/dev/null >results.json; then
   echo "tfsec violations were identified, running commenter..."
   commenter
 fi
