@@ -26,7 +26,5 @@ if [ -n "${INPUT_TFSEC_ARGS}" ]; then
   TFSEC_ARGS_OPTION="${INPUT_TFSEC_ARGS}"
 fi
 
-if ! tfsec --format=json "${INPUT_WORKING_DIRECTORY}" ${TFSEC_ARGS_OPTION} 2>/dev/null >results.json; then
-  echo "tfsec violations were identified, running commenter..."
-  commenter
-fi
+tfsec --out=results.json --format=json --soft-fail "${INPUT_WORKING_DIRECTORY}" ${TFSEC_ARGS_OPTION}
+commenter

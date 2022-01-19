@@ -41,8 +41,14 @@ func main() {
 		fail(fmt.Sprintf("failed to load results. %s", err.Error()))
 	}
 
+	if len(results) == 0 {
+		fmt.Println("No issues found.")
+		os.Exit(0)
+	}
+
 	var errMessages []string
 	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
+	var validCommentWritten bool
 	for _, result := range results {
 		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
 		comment := generateErrorMessage(result)
@@ -52,14 +58,16 @@ func main() {
 			switch err.(type) {
 			case commenter.CommentAlreadyWrittenError:
 				fmt.Println("Comment already written so not writing")
+				validCommentWritten = true
 			case commenter.CommentNotValidError:
-				fmt.Printf("Comment not written [%s], not part of the current PR\n", result.Description)
+				fmt.Printf("%s .... not writing as not part of the current PR\n", result.Description)
 				continue
 			default:
 				errMessages = append(errMessages, err.Error())
 			}
 		} else {
-			fmt.Printf("Writing comment to %s:%d:%d", result.Range.Filename, result.Range.StartLine, result.Range.EndLine)
+			validCommentWritten = true
+			fmt.Printf("Writing comment for %s to %s:%d:%d\n", result.Description, result.Range.Filename, result.Range.StartLine, result.Range.EndLine)
 		}
 	}
 
@@ -68,6 +76,13 @@ func main() {
 		for _, err := range errMessages {
 			fmt.Println(err)
 		}
+		os.Exit(1)
+	}
+	if validCommentWritten || len(errMessages) > 0 {
+		if softFail, ok := os.LookupEnv("INPUT_SOFT_FAIL_COMMENTER"); ok && strings.ToLower(softFail) == "true" {
+			return
+		}
+		os.Exit(1)
 	}
 }
 
