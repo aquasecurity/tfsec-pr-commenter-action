@@ -26,5 +26,5 @@ if [ -n "${INPUT_TFSEC_ARGS}" ]; then
   TFSEC_ARGS_OPTION="${INPUT_TFSEC_ARGS}"
 fi
 
-tfsec --out=results.json --format=json --soft-fail "${INPUT_WORKING_DIRECTORY}" ${TFSEC_ARGS_OPTION}
+tfsec --out=results.json --format=json --soft-fail ${TFSEC_ARGS_OPTION} "${INPUT_WORKING_DIRECTORY}" 
 commenter
