@@ -17,6 +17,8 @@ github.com/owenrumney/go-github-pr-commenter v0.0.16 h1:l4xOQe1tcjWFgRrJQwUBPyUB
 github.com/owenrumney/go-github-pr-commenter v0.0.16/go.mod h1:FVpyF/OGnWrtYwe9DkRpJsIlxSPIOJstZAyGyDfC/rA=
 github.com/owenrumney/go-github-pr-commenter v0.0.17 h1:f47iLC7V6JQAMBBVXhGJi/5fewjxC/LFp8b3AeN1Hao=
 github.com/owenrumney/go-github-pr-commenter v0.0.17/go.mod h1:FVpyF/OGnWrtYwe9DkRpJsIlxSPIOJstZAyGyDfC/rA=
+github.com/owenrumney/go-github-pr-commenter v0.0.18 h1:5iOxTRDzvr5m9o7R0l+8IcIYkMrgtDA3+Pw6U+4n0Qo=
+github.com/owenrumney/go-github-pr-commenter v0.0.18/go.mod h1:FVpyF/OGnWrtYwe9DkRpJsIlxSPIOJstZAyGyDfC/rA=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

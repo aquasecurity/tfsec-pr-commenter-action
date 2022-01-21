@@ -156,7 +156,7 @@ func (c *Commenter) checkCommentRelevant(filename string, line int) bool {
 
 	for _, file := range c.files {
 		if relevant := func(file *commitFileInfo) bool {
-			if file.FileName == filename {
+			if file.FileName == filename && !file.isBinary() {
 				if line >= file.hunkStart && line <= file.hunkEnd {
 					return true
 				}
@@ -172,7 +172,7 @@ func (c *Commenter) checkCommentRelevant(filename string, line int) bool {
 func (c *Commenter) getFileInfo(file string, line int) (*commitFileInfo, error) {
 
 	for _, info := range c.files {
-		if info.FileName == file {
+		if info.FileName == file && !info.isBinary() {
 			if line >= info.hunkStart && line <= info.hunkEnd {
 				return info, nil
 			}
@@ -192,18 +192,18 @@ func buildComment(file, comment string, line int, info commitFileInfo) *github.P
 	}
 }
 
-func getCommitInfo(file *github.CommitFile) (*commitFileInfo, error) {
+func getCommitInfo(file *github.CommitFile) (cfi *commitFileInfo, err error) {
+	var hunkStart, hunkEnd int
+	var isBinary bool
 	patch := file.GetPatch()
-	if patch == "" {
-		return nil, fmt.Errorf("ignoring [%s] because it has no patch informations, probably a binary?", *file.Filename)
+	if patch != "" {
+		groups := patchRegex.FindAllStringSubmatch(file.GetPatch(), -1)
+		if len(groups) < 1 {
+			return nil, fmt.Errorf("the patch details for [%s] could not be resolved", *file.Filename)
+		}
+		hunkStart, _ = strconv.Atoi(groups[0][1])
+		hunkEnd, _ = strconv.Atoi(groups[0][2])
 	}
-
-	groups := patchRegex.FindAllStringSubmatch(file.GetPatch(), -1)
-	if len(groups) < 1 {
-		return nil, fmt.Errorf("the patch details for [%s] could not be resolved", *file.Filename)
-	}
-	hunkStart, _ := strconv.Atoi(groups[0][1])
-	hunkEnd, _ := strconv.Atoi(groups[0][2])
 
 	shaGroups := commitRefRegex.FindAllStringSubmatch(file.GetContentsURL(), -1)
 	if len(shaGroups) < 1 {
@@ -212,9 +212,10 @@ func getCommitInfo(file *github.CommitFile) (*commitFileInfo, error) {
 	sha := shaGroups[0][1]
 
 	return &commitFileInfo{
-		FileName:  *file.Filename,
-		hunkStart: hunkStart,
-		hunkEnd:   hunkStart + (hunkEnd - 1),
-		sha:       sha,
+		FileName:     *file.Filename,
+		hunkStart:    hunkStart,
+		hunkEnd:      hunkStart + (hunkEnd - 1),
+		sha:          sha,
+		likelyBinary: isBinary,
 	}, nil
 }

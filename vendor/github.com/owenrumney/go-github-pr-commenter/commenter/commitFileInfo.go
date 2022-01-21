@@ -6,10 +6,11 @@ import (
 )
 
 type commitFileInfo struct {
-	FileName  string
-	hunkStart int
-	hunkEnd   int
-	sha       string
+	FileName     string
+	hunkStart    int
+	hunkEnd      int
+	sha          string
+	likelyBinary bool
 }
 
 func getCommitFileInfo(ghConnector *connector) ([]*commitFileInfo, error) {
@@ -41,4 +42,8 @@ func getCommitFileInfo(ghConnector *connector) ([]*commitFileInfo, error) {
 func (cfi commitFileInfo) calculatePosition(line int) *int {
 	position := line - cfi.hunkStart
 	return &position
+}
+
+func (cfi commitFileInfo) isBinary() bool {
+	return cfi.likelyBinary
 }
