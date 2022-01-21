@@ -22,7 +22,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@master
       - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.0.1
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.0.2
         with:
           github_token: ${{ github.token }}
 ```
@@ -62,7 +62,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@master
       - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.0.1
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.0.2
         with:
           tfsec_vars: --soft-fail
           github_token: ${{ github.token }}
