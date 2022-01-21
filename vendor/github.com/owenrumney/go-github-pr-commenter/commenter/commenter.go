@@ -193,17 +193,21 @@ func buildComment(file, comment string, line int, info commitFileInfo) *github.P
 }
 
 func getCommitInfo(file *github.CommitFile) (*commitFileInfo, error) {
+	patch := file.GetPatch()
+	if patch == "" {
+		return nil, nil
+	}
 
 	groups := patchRegex.FindAllStringSubmatch(file.GetPatch(), -1)
 	if len(groups) < 1 {
-		return nil, errors.New("the patch details could not be resolved")
+		return nil, fmt.Errorf("the patch details for [%s] could not be resolved", *file.Filename)
 	}
 	hunkStart, _ := strconv.Atoi(groups[0][1])
 	hunkEnd, _ := strconv.Atoi(groups[0][2])
 
 	shaGroups := commitRefRegex.FindAllStringSubmatch(file.GetContentsURL(), -1)
 	if len(shaGroups) < 1 {
-		return nil, errors.New("the sha details could not be resolved")
+		return nil, fmt.Errorf("the sha details for [%s] could not be resolved", *file.Filename)
 	}
 	sha := shaGroups[0][1]
 
