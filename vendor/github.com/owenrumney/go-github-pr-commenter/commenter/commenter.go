@@ -195,7 +195,7 @@ func buildComment(file, comment string, line int, info commitFileInfo) *github.P
 func getCommitInfo(file *github.CommitFile) (*commitFileInfo, error) {
 	patch := file.GetPatch()
 	if patch == "" {
-		return nil, nil
+		return nil, fmt.Errorf("ignoring [%s] because it has no patch informations, probably a binary?", *file.Filename)
 	}
 
 	groups := patchRegex.FindAllStringSubmatch(file.GetPatch(), -1)
