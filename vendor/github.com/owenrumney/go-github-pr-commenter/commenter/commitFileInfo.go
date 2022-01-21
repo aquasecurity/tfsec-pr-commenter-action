@@ -47,3 +47,7 @@ func (cfi commitFileInfo) calculatePosition(line int) *int {
 func (cfi commitFileInfo) isBinary() bool {
 	return cfi.likelyBinary
 }
+
+func (cfi commitFileInfo) isResolvable() bool {
+	return cfi.isBinary() && cfi.hunkStart != -1 && cfi.hunkEnd != -1
+}

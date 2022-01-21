@@ -29,7 +29,8 @@ func main() {
 
 	prNo, err := extractPullRequestNumber()
 	if err != nil {
-		fail(err.Error())
+		fmt.Println("Not a PR, nothing to comment on, exiting...")
+		return
 	}
 
 	c, err := commenter.NewCommenter(token, owner, repo, prNo)
@@ -110,7 +111,11 @@ func extractPullRequestNumber() (int, error) {
 	}
 	payload := data.(map[string]interface{})
 
-	return strconv.Atoi(fmt.Sprintf("%v", payload["number"]))
+	prNumber, err := strconv.Atoi(fmt.Sprintf("%v", payload["number"]))
+	if err != nil {
+		return 0, fmt.Errorf("not a valid PR")
+	}
+	return prNumber, nil
 }
 
 func formatUrls(urls []string) string {
