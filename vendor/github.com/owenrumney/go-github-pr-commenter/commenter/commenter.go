@@ -17,7 +17,7 @@ type Commenter struct {
 }
 
 var (
-	patchRegex     = regexp.MustCompile(`^@@.*[\+\-](\d+),(\d+).+?@@`)
+	patchRegex     = regexp.MustCompile(`^@@.*[\+\-](\d+)(?>\s[\+\-](\d)|,(\d+)).+?@@`)
 	commitRefRegex = regexp.MustCompile(".+ref=(.+)")
 )
 
@@ -201,11 +201,18 @@ func getCommitInfo(file *github.CommitFile) (cfi *commitFileInfo, err error) {
 		if len(groups) < 1 {
 			return nil, fmt.Errorf("the patch details for [%s] could not be resolved", *file.Filename)
 		}
-		hunkStart, err = strconv.Atoi(groups[0][1])
+
+		patchGroup := groups[0]
+		endPos := 2
+		if len(patchGroup) > 2 {
+			endPos = 3
+		}
+
+		hunkStart, err = strconv.Atoi(patchGroup[1])
 		if err != nil {
 			hunkStart = -1
 		}
-		hunkEnd, err = strconv.Atoi(groups[0][2])
+		hunkEnd, err = strconv.Atoi(patchGroup[endPos])
 		if err != nil {
 			hunkEnd = -1
 		}
