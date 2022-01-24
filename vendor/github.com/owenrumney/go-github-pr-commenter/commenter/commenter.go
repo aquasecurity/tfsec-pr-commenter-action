@@ -17,7 +17,7 @@ type Commenter struct {
 }
 
 var (
-	patchRegex     = regexp.MustCompile(`^@@.*[\+\-](\d+)(?>\s[\+\-](\d)|,(\d+)).+?@@`)
+	patchRegex     = regexp.MustCompile(`^@@.*\d [\+\-](\d+),?(\d+)?.+?@@`)
 	commitRefRegex = regexp.MustCompile(".+ref=(.+)")
 )
 
@@ -193,29 +193,11 @@ func buildComment(file, comment string, line int, info commitFileInfo) *github.P
 }
 
 func getCommitInfo(file *github.CommitFile) (cfi *commitFileInfo, err error) {
-	var hunkStart, hunkEnd int
 	var isBinary bool
 	patch := file.GetPatch()
-	if patch != "" {
-		groups := patchRegex.FindAllStringSubmatch(patch, -1)
-		if len(groups) < 1 {
-			return nil, fmt.Errorf("the patch details for [%s] could not be resolved", *file.Filename)
-		}
-
-		patchGroup := groups[0]
-		endPos := 2
-		if len(patchGroup) > 2 {
-			endPos = 3
-		}
-
-		hunkStart, err = strconv.Atoi(patchGroup[1])
-		if err != nil {
-			hunkStart = -1
-		}
-		hunkEnd, err = strconv.Atoi(patchGroup[endPos])
-		if err != nil {
-			hunkEnd = -1
-		}
+	hunkStart, hunkEnd, err := parseHunkPositions(patch, *file.Filename)
+	if err != nil {
+		return nil, err
 	}
 
 	shaGroups := commitRefRegex.FindAllStringSubmatch(file.GetContentsURL(), -1)
@@ -231,4 +213,29 @@ func getCommitInfo(file *github.CommitFile) (cfi *commitFileInfo, err error) {
 		sha:          sha,
 		likelyBinary: isBinary,
 	}, nil
+}
+
+func parseHunkPositions(patch, filename string) (hunkStart int, hunkEnd int, err error) {
+	if patch != "" {
+		groups := patchRegex.FindAllStringSubmatch(patch, -1)
+		if len(groups) < 1 {
+			return 0, 0, fmt.Errorf("the patch details for [%s] could not be resolved", filename)
+		}
+
+		patchGroup := groups[0]
+		endPos := 2
+		if len(patchGroup) > 2 && patchGroup[2] == "" {
+			endPos = 1
+		}
+
+		hunkStart, err = strconv.Atoi(patchGroup[1])
+		if err != nil {
+			hunkStart = -1
+		}
+		hunkEnd, err = strconv.Atoi(patchGroup[endPos])
+		if err != nil {
+			hunkEnd = -1
+		}
+	}
+	return hunkStart, hunkEnd, nil
 }
