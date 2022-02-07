@@ -12,7 +12,7 @@ type checkRange struct {
 }
 
 type result struct {
-	RuleID          string      `json:"rule_id"`
+	RuleID          string      `json:"long_id"`
 	RuleDescription string      `json:"rule_description"`
 	RuleProvider    string      `json:"rule_provider"`
 	Links           []string    `json:"links"`
