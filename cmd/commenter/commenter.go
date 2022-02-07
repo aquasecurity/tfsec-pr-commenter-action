@@ -90,12 +90,14 @@ func main() {
 func generateErrorMessage(result result) string {
 	return fmt.Sprintf(`tfsec check %s failed. 
 
-%s
+Description: %s
+
+Severity: %s
 
 For more information, see:
 
 %s`,
-		result.RuleID, result.Description, formatUrls(result.Links))
+		result.RuleID, result.Description, result.Severity, formatUrls(result.Links))
 }
 
 func extractPullRequestNumber() (int, error) {
