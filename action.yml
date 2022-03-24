@@ -10,7 +10,7 @@ inputs:
     required: false
     description: |
       Directory to run the action on, from the repo root.
-      Default is . ( root of the repository)
+      Default is . (root of the repository)
     default: "."
   tfsec_version:
     required: false
@@ -19,8 +19,13 @@ inputs:
   tfsec_args:
     required: false
     description: |
-      Space seperated args specified here will be added during tfsec execution.
-      (eg. --force-all-dirs --verbose)
+      Space-separated args specified here will be added during tfsec execution.
+      (e.g. --force-all-dirs --verbose)
+  tfsec_formats:
+    required: false
+    description: |
+      Comma-separated formats specified here will be output in addition to json.
+      (e.g. sarif,csv)
   commenter_version:
     required: false
     description: The version of the PR commenter code to run, defaults to latest
