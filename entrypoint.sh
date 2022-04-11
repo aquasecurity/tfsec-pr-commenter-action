@@ -7,8 +7,13 @@ if [ "$INPUT_TFSEC_VERSION" != "latest" ]; then
   TFSEC_VERSION="/tags/${INPUT_TFSEC_VERSION}"
 fi
 
-wget -O - -q "$(wget -q https://api.github.com/repos/aquasecurity/tfsec/releases${TFSEC_VERSION} -O - | grep -m 1 -o -E "https://.+?tfsec-linux-amd64" | head -n1)" > tfsec-linux-amd64
-wget -O - -q "$(wget -q https://api.github.com/repos/aquasecurity/tfsec/releases${TFSEC_VERSION} -O - | grep -m 1 -o -E "https://.+?tfsec_checksums.txt" | head -n1)" > tfsec.checksums
+token=""
+if [ "$GITHUB_TOKEN" != "" ]; then
+    token="-H 'Authorization: Bearer $GITHUB_TOKEN'"
+fi
+
+wget "$token" -O - -q "$(wget $token -q https://api.github.com/repos/aquasecurity/tfsec/releases${TFSEC_VERSION} -O - | grep -m 1 -o -E "https://.+?tfsec-linux-amd64" | head -n1)" > tfsec-linux-amd64
+wget "$token" -O - -q "$(wget $token -q https://api.github.com/repos/aquasecurity/tfsec/releases${TFSEC_VERSION} -O - | grep -m 1 -o -E "https://.+?tfsec_checksums.txt" | head -n1)" > tfsec.checksums
 
 grep tfsec-linux-amd64 tfsec.checksums > tfsec-linux-amd64.checksum
 sha256sum -c tfsec-linux-amd64.checksum
@@ -19,8 +24,8 @@ if [ "$INPUT_COMMENTER_VERSION" != "latest" ]; then
   COMMENTER_VERSION="tags/${INPUT_COMMENTER_VERSION}"
 fi
 
-wget -O - -q "$(wget -q https://api.github.com/repos/aquasecurity/tfsec-pr-commenter-action/releases/${COMMENTER_VERSION} -O - | grep -o -E "https://.+?commenter-linux-amd64")" > commenter-linux-amd64
-wget -O - -q "$(wget -q https://api.github.com/repos/aquasecurity/tfsec-pr-commenter-action/releases/${COMMENTER_VERSION} -O - | grep -o -E "https://.+?checksums.txt")" > commenter.checksums
+wget "$token" -O - -q "$(wget "$token" -q https://api.github.com/repos/aquasecurity/tfsec-pr-commenter-action/releases/${COMMENTER_VERSION} -O - | grep -o -E "https://.+?commenter-linux-amd64")" > commenter-linux-amd64
+wget "$token" -O - -q "$(wget "$token" -q https://api.github.com/repos/aquasecurity/tfsec-pr-commenter-action/releases/${COMMENTER_VERSION} -O - | grep -o -E "https://.+?checksums.txt")" > commenter.checksums
 
 grep commenter-linux-amd64 commenter.checksums > commenter-linux-amd64.checksum
 sha256sum -c commenter-linux-amd64.checksum
