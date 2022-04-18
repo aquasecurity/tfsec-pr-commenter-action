@@ -49,9 +49,14 @@ func main() {
 
 	var errMessages []string
 	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
+	workingDir := os.Getenv("INPUT_WORKING_DIRECTORY")
+	if workingDir != "" {
+		workingDir = strings.TrimPrefix(workingDir, "./")
+		workingDir = strings.TrimSuffix(workingDir, "/") + "/"
+	}
 	var validCommentWritten bool
 	for _, result := range results {
-		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
+		result.Range.Filename = workingDir + strings.ReplaceAll(result.Range.Filename, workspacePath, "")
 		comment := generateErrorMessage(result)
 		err := c.WriteMultiLineComment(result.Range.Filename, comment, result.Range.StartLine, result.Range.EndLine)
 		if err != nil {
