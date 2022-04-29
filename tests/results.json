@@ -16,7 +16,7 @@
 			"severity": "HIGH",
 			"warning": false,
 			"status": 0,
-			"resource": "image_scanning_configuration.foobarrr.scan_on_push",
+			"resource": "image_scanning_configuration.scan_on_push",
 			"location": {
 				"filename": "/github/workspace/vendor/modules.txt",
 				"start_line": 7,
