@@ -155,12 +155,16 @@ func (c *Commenter) writeCommentIfRequired(prComment *github.PullRequestComment)
 func (c *Commenter) checkCommentRelevant(filename string, line int) bool {
 
 	for _, file := range c.files {
+		fmt.Printf("File changed in PR %v: ", file.FileName)
 		if relevant := func(file *commitFileInfo) bool {
 			if file.FileName == filename && !file.isResolvable() {
+				fmt.Printf("issue at L%v, PR change between L%v and L%v... ", line, file.hunkStart, file.hunkEnd)
 				if line >= file.hunkStart && line <= file.hunkEnd {
+					fmt.Println("match")
 					return true
 				}
 			}
+			fmt.Println("ignoring")
 			return false
 		}(file); relevant {
 			return true

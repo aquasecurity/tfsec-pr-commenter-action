@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting the github commenter...")
+	fmt.Println("Starting the github commenter")
 
 	token := os.Getenv("INPUT_GITHUB_TOKEN")
 	if len(token) == 0 {
@@ -22,21 +22,20 @@ func main() {
 	githubRepository := os.Getenv("GITHUB_REPOSITORY")
 	split := strings.Split(githubRepository, "/")
 	if len(split) != 2 {
-		fail(fmt.Sprintf("Expected value for split not found. Expected 2 in %v", split))
+		fail(fmt.Sprintf("unexpected value for GITHUB_REPOSITORY. Expected <organisation/name>, found %v", split))
 	}
 	owner := split[0]
 	repo := split[1]
 
+	fmt.Printf("Working in repository %s\n", repo)
+
 	prNo, err := extractPullRequestNumber()
 	if err != nil {
-		fmt.Println("Not a PR, nothing to comment on, exiting...")
+		fmt.Println("Not a PR, nothing to comment on, exiting")
 		return
 	}
+	fmt.Printf("Working in PR %v\n", prNo)
 
-	c, err := commenter.NewCommenter(token, owner, repo, prNo)
-	if err != nil {
-		fail(fmt.Sprintf("failed to create a new commenter. %s", err.Error()))
-	}
 	results, err := loadResultsFile()
 	if err != nil {
 		fail(fmt.Sprintf("failed to load results. %s", err.Error()))
@@ -46,22 +45,31 @@ func main() {
 		fmt.Println("No issues found.")
 		os.Exit(0)
 	}
+	fmt.Printf("TFSec found %v issues\n", len(results))
+
+	c, err := commenter.NewCommenter(token, owner, repo, prNo)
+	if err != nil {
+		fail(fmt.Sprintf("could not connect to GitHub (%s)", err.Error()))
+	}
+
+	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
+	fmt.Printf("Working in GITHUB_WORKSPACE %s\n", workspacePath)
 
 	var errMessages []string
-	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
 	var validCommentWritten bool
 	for _, result := range results {
 		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
 		comment := generateErrorMessage(result)
+		fmt.Printf("Preparing comment for violation of rule %v in %v\n", result.RuleID, result.Range.Filename)
 		err := c.WriteMultiLineComment(result.Range.Filename, comment, result.Range.StartLine, result.Range.EndLine)
 		if err != nil {
 			// don't error if its simply that the comments aren't valid for the PR
 			switch err.(type) {
 			case commenter.CommentAlreadyWrittenError:
-				fmt.Println("Comment already written so not writing")
+				fmt.Println("Ignoring - comment already written")
 				validCommentWritten = true
 			case commenter.CommentNotValidError:
-				fmt.Printf("%s .... not writing as not part of the current PR\n", result.Description)
+				fmt.Println("Ignoring - change not part of the current PR")
 				continue
 			default:
 				errMessages = append(errMessages, err.Error())
@@ -96,8 +104,10 @@ More information available %s`,
 }
 
 func extractPullRequestNumber() (int, error) {
-	file, err := ioutil.ReadFile("/github/workflow/event.json")
+	github_event_file := "/github/workflow/event.json"
+	file, err := ioutil.ReadFile(github_event_file)
 	if err != nil {
+		fail(fmt.Sprintf("GitHub event payload not found in %s", github_event_file))
 		return -1, err
 	}
 
@@ -127,6 +137,6 @@ func formatUrls(urls []string) string {
 }
 
 func fail(err string) {
-	fmt.Printf("The commenter failed with the following error:\n%s\n", err)
+	fmt.Printf("Error: %s\n", err)
 	os.Exit(-1)
 }
