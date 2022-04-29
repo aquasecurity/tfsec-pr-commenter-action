@@ -88,16 +88,11 @@ func main() {
 }
 
 func generateErrorMessage(result result) string {
-	return fmt.Sprintf(`tfsec check %s failed. 
+	return fmt.Sprintf(`:warning: tfsec found a **%s** severity issue from rule `+"`%s`"+`:
+> %s
 
-Description: %s
-
-Severity: %s
-
-For more information, see:
-
-%s`,
-		result.RuleID, result.Description, result.Severity, formatUrls(result.Links))
+More information available %s`,
+		result.Severity, result.RuleID, result.Description, formatUrls(result.Links))
 }
 
 func extractPullRequestNumber() (int, error) {
@@ -123,7 +118,10 @@ func extractPullRequestNumber() (int, error) {
 func formatUrls(urls []string) string {
 	urlList := ""
 	for _, url := range urls {
-		urlList += fmt.Sprintf("- %s\n", url)
+		if urlList != "" {
+			urlList += fmt.Sprintf(" and ")
+		}
+		urlList += fmt.Sprintf("[here](%s)", url)
 	}
 	return urlList
 }
