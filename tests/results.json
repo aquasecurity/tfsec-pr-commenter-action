@@ -1,0 +1,50 @@
+{
+	"results": [
+		{
+			"rule_id": "AVD-AWS-0030",
+			"long_id": "aws-ecr-enable-image-scans",
+			"rule_description": "ECR repository has image scans disabled.",
+			"rule_provider": "aws",
+			"rule_service": "ecr",
+			"impact": "The ability to scan images is not being used and vulnerabilities will not be highlighted",
+			"resolution": "Enable ECR image scanning",
+			"links": [
+				"https://aquasecurity.github.io/tfsec/v1.19.1/checks/aws/ecr/enable-image-scans/",
+				"https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository#image_scanning_configuration"
+			],
+			"description": "Image scanning is not enabled.",
+			"severity": "HIGH",
+			"warning": false,
+			"status": 0,
+			"resource": "image_scanning_configuration.scan_on_push",
+			"location": {
+				"filename": "/github/workspace/vendor/modules.txt",
+				"start_line": 7,
+				"end_line": 7
+			}
+		},
+		{
+			"rule_id": "AVD-AWS-0031",
+			"long_id": "aws-ecr-enforce-immutable-repository",
+			"rule_description": "ECR images tags shouldn't be mutable.",
+			"rule_provider": "aws",
+			"rule_service": "ecr",
+			"impact": "Image tags could be overwritten with compromised images",
+			"resolution": "Only use immutable images in ECR",
+			"links": [
+				"https://aquasecurity.github.io/tfsec/v1.19.1/checks/aws/ecr/enforce-immutable-repository/",
+				"https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository"
+			],
+			"description": "Repository tags are mutable.",
+			"severity": "HIGH",
+			"warning": false,
+			"status": 0,
+			"resource": "aws_ecr_repository.foobarrr.image_tag_mutability",
+			"location": {
+				"filename": "/github/workspace/go.mod",
+				"start_line": 5,
+				"end_line": 5
+			}
+		}
+	]
+}
