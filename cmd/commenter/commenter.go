@@ -55,10 +55,16 @@ func main() {
 	workspacePath := fmt.Sprintf("%s/", os.Getenv("GITHUB_WORKSPACE"))
 	fmt.Printf("Working in GITHUB_WORKSPACE %s\n", workspacePath)
 
+	workingDir := os.Getenv("INPUT_WORKING_DIRECTORY")
+	if workingDir != "" {
+		workingDir = strings.TrimPrefix(workingDir, "./")
+		workingDir = strings.TrimSuffix(workingDir, "/") + "/"
+	}
+
 	var errMessages []string
 	var validCommentWritten bool
 	for _, result := range results {
-		result.Range.Filename = strings.ReplaceAll(result.Range.Filename, workspacePath, "")
+		result.Range.Filename = workingDir + strings.ReplaceAll(result.Range.Filename, workspacePath, "")
 		comment := generateErrorMessage(result)
 		fmt.Printf("Preparing comment for violation of rule %v in %v\n", result.RuleID, result.Range.Filename)
 		err := c.WriteMultiLineComment(result.Range.Filename, comment, result.Range.StartLine, result.Range.EndLine)
