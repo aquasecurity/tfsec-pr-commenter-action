@@ -22,9 +22,9 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@master
       - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        uses: tfsec/tfsec-pr-commenter-action@v1.2.0
         with:
-          github_token: ${{ github.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 On each pull request and subsequent commit, tfsec will run and add comments to the PR where tfsec has failed.
@@ -64,10 +64,10 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@master
       - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        uses: tfsec/tfsec-pr-commenter-action@v1.2.0
         with:
           tfsec_args: --soft-fail
-          github_token: ${{ github.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### tfsec_formats
