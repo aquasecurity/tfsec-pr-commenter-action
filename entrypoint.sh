@@ -14,7 +14,7 @@ grep tfsec-linux-amd64 tfsec.checksums > tfsec-linux-amd64.checksum
 sha256sum -c tfsec-linux-amd64.checksum
 install tfsec-linux-amd64 /usr/local/bin/tfsec
 
-COMMENTER_VERSION="latest"
+COMMENTER_VERSION="tags/${GITHUB_ACTION_REF}"
 if [ "$INPUT_COMMENTER_VERSION" != "latest" ]; then
   COMMENTER_VERSION="tags/${INPUT_COMMENTER_VERSION}"
 fi
