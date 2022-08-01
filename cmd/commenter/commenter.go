@@ -47,7 +47,9 @@ func main() {
 	}
 	fmt.Printf("TFSec found %v issues\n", len(results))
 
-	c, err := commenter.NewCommenter(token, owner, repo, prNo)
+	//c, err := commenter.NewCommenter(token, owner, repo, prNo)
+	c, err := commenter.NewEnterpriseCommenter(token, "https://github.dxc.com/api/v3/", "https://github.dxc.com/api/v3/", owner, repo, prNo)
+
 	if err != nil {
 		fail(fmt.Sprintf("could not connect to GitHub (%s)", err.Error()))
 	}
