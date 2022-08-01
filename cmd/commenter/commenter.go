@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"net/url"
 
 	"github.com/owenrumney/go-github-pr-commenter/commenter"
 )
@@ -47,8 +48,20 @@ func main() {
 	}
 	fmt.Printf("TFSec found %v issues\n", len(results))
 
-	//c, err := commenter.NewCommenter(token, owner, repo, prNo)
-	c, err := commenter.NewEnterpriseCommenter(token, "https://github.dxc.com/api/v3/", "https://github.dxc.com/api/v3/", owner, repo, prNo)
+	github_api_url := os.Getenv("GITHUB_API_URL")
+
+	var c *commenter.Commenter
+	if github_api_url == "" || github_api_url == "https://api.github.com" {
+		c, err = commenter.NewCommenter(token, owner, repo, prNo)
+	} else {
+		url, err := url.Parse(github_api_url)
+		if err != nil {
+			fail(fmt.Sprintf("failed to parse GitHub API URL. %s", err.Error()))
+		}
+
+		enterpriseUrl := fmt.Sprintf("%s://%s", url.Scheme, url.Hostname())
+		c, err = commenter.NewEnterpriseCommenter(token, enterpriseUrl, enterpriseUrl, owner, repo, prNo)
+	}
 
 	if err != nil {
 		fail(fmt.Sprintf("could not connect to GitHub (%s)", err.Error()))
