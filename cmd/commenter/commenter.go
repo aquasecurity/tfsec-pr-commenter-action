@@ -129,10 +129,7 @@ More information available %s`,
 }
 
 func extractPullRequestNumber() (int, error) {
-	github_event_file := os.Getenv("GITHUB_EVENT_PATH")
-	if github_event_file == "" {
-		github_event_file = "/github/workflow/event.json"
-	}
+	github_event_file := "/github/workflow/event.json"
 
 	file, err := ioutil.ReadFile(github_event_file)
 	if err != nil {
