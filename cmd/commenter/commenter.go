@@ -130,7 +130,6 @@ More information available %s`,
 
 func extractPullRequestNumber() (int, error) {
 	github_event_file := "/github/workflow/event.json"
-
 	file, err := ioutil.ReadFile(github_event_file)
 	if err != nil {
 		fail(fmt.Sprintf("GitHub event payload not found in %s", github_event_file))
