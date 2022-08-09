@@ -111,7 +111,7 @@ func createCommenter(token, owner, repo string, prNo int) (*commenter.Commenter,
 		c, err = commenter.NewCommenter(token, owner, repo, prNo)
 	} else {
 		url, err := url.Parse(githubApiUrl)
-		if err != nil {
+		if err == nil {
 			enterpriseUrl := fmt.Sprintf("%s://%s", url.Scheme, url.Hostname())
 			c, err = commenter.NewEnterpriseCommenter(token, enterpriseUrl, enterpriseUrl, owner, repo, prNo)	
 		}
