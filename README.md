@@ -9,6 +9,13 @@ To add the action, add `tfsec_pr_commenter.yml` into the `.github/workflows` dir
 
 The contents of `tfsec_pr_commenter.yml` should be;
 
+> **Note**: The GITHUB_TOKEN injected to the workflow will need permissions to write on pull requests.
+>
+> This can be achieved by adding a permissions block in your workflow definition.
+>
+> See: [docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs)
+> for more details.
+
 ```yaml
 name: tfsec-pr-commenter
 on:
@@ -17,6 +24,10 @@ jobs:
   tfsec:
     name: tfsec PR commenter
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Clone repo
