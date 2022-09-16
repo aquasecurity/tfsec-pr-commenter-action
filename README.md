@@ -56,7 +56,7 @@ There are a number of optional inputs that can be used in the `with:` block.
 
 **commenter_version** - the version of the commenter to use, defaults to `latest`
 
-**soft_fail_commenter** - set to `true` to to comment silently without breaking the build
+**soft_fail_commenter** - set to `true` to comment silently without breaking the build
 
 ### tfsec_args
 
