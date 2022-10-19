@@ -2,6 +2,10 @@
 
 set -xe
 
+if [ -z "${INPUT_GITHUB_TOKEN}" ] ; then
+  echo "Consider setting a GITHUB_TOKEN to prevent GitHub api rate limits." >&2
+fi
+
 TFSEC_VERSION=""
 if [ "$INPUT_TFSEC_VERSION" != "latest" ] && [ -n "$INPUT_TFSEC_VERSION" ]; then
   TFSEC_VERSION="/tags/${INPUT_TFSEC_VERSION}"
@@ -23,6 +27,7 @@ function get_release_assets {
     -sSL
     --header "Accept: application/vnd.github+json"
   )
+  [ -n "${INPUT_GITHUB_TOKEN}" ] && args+=(--header "Authorization: Bearer ${INPUT_GITHUB_TOKEN}")
   curl "${args[@]}" "https://api.github.com/repos/$repo/releases${version}" | jq '.assets[] | { name: .name, download_url: .browser_download_url }'
 }
 
