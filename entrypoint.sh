@@ -3,28 +3,45 @@
 set -xe
 
 TFSEC_VERSION=""
-if [ "$INPUT_TFSEC_VERSION" != "latest" ]; then
+if [ "$INPUT_TFSEC_VERSION" != "latest" ] && [ -n "$INPUT_TFSEC_VERSION" ]; then
   TFSEC_VERSION="/tags/${INPUT_TFSEC_VERSION}"
+else
+  TFSEC_VERSION="/latest"
 fi
-
-wget -O - -q "$(wget -q "https://api.github.com/repos/aquasecurity/tfsec/releases${TFSEC_VERSION}" -O - | grep -m 1 -o -E "https://.+?tfsec-linux-amd64" | head -n1)" > tfsec-linux-amd64
-wget -O - -q "$(wget -q "https://api.github.com/repos/aquasecurity/tfsec/releases${TFSEC_VERSION}" -O - | grep -m 1 -o -E "https://.+?tfsec_checksums.txt" | head -n1)" > tfsec.checksums
-
-grep tfsec-linux-amd64 tfsec.checksums > tfsec-linux-amd64.checksum
-sha256sum -c tfsec-linux-amd64.checksum
-install tfsec-linux-amd64 /usr/local/bin/tfsec
 
 COMMENTER_VERSION="latest"
-if [ "$INPUT_COMMENTER_VERSION" != "latest" ]; then
-  COMMENTER_VERSION="tags/${INPUT_COMMENTER_VERSION}"
+if [ "$INPUT_COMMENTER_VERSION" != "latest" ] && [ -n "$INPUT_COMMENTER_VERSION" ]; then
+  COMMENTER_VERSION="/tags/${INPUT_COMMENTER_VERSION}"
+else
+  COMMENTER_VERSION="/latest"
 fi
 
-wget -O - -q "$(wget -q "https://api.github.com/repos/aquasecurity/tfsec-pr-commenter-action/releases/${COMMENTER_VERSION}" -O - | grep -o -E "https://.+?commenter-linux-amd64")" > commenter-linux-amd64
-wget -O - -q "$(wget -q "https://api.github.com/repos/aquasecurity/tfsec-pr-commenter-action/releases/${COMMENTER_VERSION}" -O - | grep -o -E "https://.+?checksums.txt")" > commenter.checksums
+function get_release_assets {
+  repo="$1"
+  version="$2"
+  args=(
+    -sSL
+    --header "Accept: application/vnd.github+json"
+  )
+  curl "${args[@]}" "https://api.github.com/repos/$repo/releases${version}" | jq '.assets[] | { name: .name, download_url: .browser_download_url }'
+}
 
-grep commenter-linux-amd64 commenter.checksums > commenter-linux-amd64.checksum
-sha256sum -c commenter-linux-amd64.checksum
-install commenter-linux-amd64 /usr/local/bin/commenter
+function install_release {
+  repo="$1"
+  version="$2"
+  binary="$3-linux-amd64"
+  checksum="$4"
+  release_assets="$(get_release_assets "${repo}" "${version}")"
+
+  curl -sLo "${binary}" "$(echo "${release_assets}" | jq -r ". | select(.name == \"${binary}\") | .download_url")"
+  curl -sLo "$3-checksums.txt" "$(echo "${release_assets}" | jq -r ". | select(.name | contains(\"$checksum\")) | .download_url")"
+
+  grep "${binary}" "$3-checksums.txt" | sha256sum -c -
+  install "${binary}" "/usr/local/bin/${3}"
+}
+
+install_release aquasecurity/tfsec "${TFSEC_VERSION}" tfsec tfsec_checksums.txt
+install_release aquasecurity/tfsec-pr-commenter-action "${COMMENTER_VERSION}" commenter checksums.txt
 
 if [ -n "${GITHUB_WORKSPACE}" ]; then
   cd "${GITHUB_WORKSPACE}" || exit
