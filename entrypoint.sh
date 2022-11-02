@@ -63,5 +63,5 @@ if [ -n "${INPUT_TFSEC_FORMATS}" ]; then
   TFSEC_OUT_OPTION="${TFSEC_OUT_OPTION%.*}"
 fi
 
-tfsec --out=${TFSEC_OUT_OPTION} --format="${TFSEC_FORMAT_OPTION}" --soft-fail "${TFSEC_ARGS_OPTION}" "${INPUT_WORKING_DIRECTORY}"
+tfsec --out=${TFSEC_OUT_OPTION} --format="${TFSEC_FORMAT_OPTION}" --soft-fail ${TFSEC_ARGS_OPTION} "${INPUT_WORKING_DIRECTORY}"
 commenter
