@@ -1,0 +1,53 @@
+name: "Run tfsec PR commenter"
+description: "Runs tfsec and adds comments to the PR where checks have failed"
+author: "Owen Rumney"
+
+inputs:
+  github_token:
+    description: "GITHUB_TOKEN"
+    required: true
+  working_directory:
+    required: false
+    description: |
+      Directory to run the action on, from the repo root.
+      Default is . (root of the repository)
+    default: "."
+  tfsec_version:
+    required: false
+    description: The version of tfsec to use, defaults to latest
+    default: latest
+  tfsec_args:
+    required: false
+    description: |
+      Space-separated args specified here will be added during tfsec execution.
+      (e.g. --force-all-dirs --verbose)
+  tfsec_formats:
+    required: false
+    description: |
+      Comma-separated formats specified here will be output in addition to json.
+      (e.g. sarif,csv)
+  commenter_version:
+    required: false
+    description: The version of the PR commenter code to run, defaults to latest
+    default: latest
+  soft_fail_commenter:
+    required: false
+    description: If set to `true` will silently comment without breaking the build
+outputs:
+  tfsec-return-code:
+    description: "tfsec command return code"
+runs:
+  using: "composite"
+  steps:
+    - run: ${{ github.action_path }}/../entrypoint.sh
+      shell: bash
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_WORKING_DIRECTORY: ${{ inputs.working_directory }}
+        INPUT_TFSEC_VERSION: ${{ inputs.tfsec_version }}
+        INPUT_TFSEC_ARGS: ${{ inputs.tfsec_args }}
+        INPUT_TFSEC_FORMATS: ${{ inputs.tfsec_formats }}
+        INPUT_COMMENTER_VERSION: ${{ inputs.commenter_version }}
+branding:
+  icon: "git-pull-request"
+  color: "purple"
