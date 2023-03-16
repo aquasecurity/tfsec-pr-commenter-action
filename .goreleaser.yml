@@ -3,7 +3,7 @@ before:
     - go mod tidy
     - go mod vendor
 builds:
-  - 
+  -
     id: commenter
     main: ./cmd/commenter
     binary: commenter
@@ -14,6 +14,7 @@ builds:
       - linux
     goarch:
       - amd64
+      - arm64
 
 snapshot:
   name_template: "{{ .Tag }}-next"

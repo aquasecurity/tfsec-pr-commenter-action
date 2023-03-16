@@ -32,9 +32,19 @@ function get_release_assets {
 }
 
 function install_release {
+  arch=""
+  case "$(uname -m)" in
+    "aarch64")
+      arch="arm64"
+      ;;
+    "x86_64")
+      arch="amd64"
+      ;;
+  esac
+
   repo="$1"
   version="$2"
-  binary="$3-linux-amd64"
+  binary="$3-linux-$arch"
   checksum="$4"
   release_assets="$(get_release_assets "${repo}" "${version}")"
 
