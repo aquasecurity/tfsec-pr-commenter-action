@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"net/url"
 
 	"github.com/owenrumney/go-github-pr-commenter/commenter"
 )
@@ -47,7 +48,7 @@ func main() {
 	}
 	fmt.Printf("TFSec found %v issues\n", len(results))
 
-	c, err := commenter.NewCommenter(token, owner, repo, prNo)
+	c, err := createCommenter(token, owner, repo, prNo)
 	if err != nil {
 		fail(fmt.Sprintf("could not connect to GitHub (%s)", err.Error()))
 	}
@@ -101,6 +102,24 @@ func main() {
 	}
 }
 
+func createCommenter(token, owner, repo string, prNo int) (*commenter.Commenter, error) {
+	var err error
+	var c *commenter.Commenter
+
+	githubApiUrl := os.Getenv("GITHUB_API_URL")
+	if githubApiUrl == "" || githubApiUrl == "https://api.github.com" {
+		c, err = commenter.NewCommenter(token, owner, repo, prNo)
+	} else {
+		url, err := url.Parse(githubApiUrl)
+		if err == nil {
+			enterpriseUrl := fmt.Sprintf("%s://%s", url.Scheme, url.Hostname())
+			c, err = commenter.NewEnterpriseCommenter(token, enterpriseUrl, enterpriseUrl, owner, repo, prNo)	
+		}
+	}
+
+	return c, err
+}
+
 func generateErrorMessage(result result) string {
 	return fmt.Sprintf(`:warning: tfsec found a **%s** severity issue from rule `+"`%s`"+`:
 > %s
@@ -110,11 +129,7 @@ More information available %s`,
 }
 
 func extractPullRequestNumber() (int, error) {
-	github_event_file := os.Getenv("GITHUB_EVENT_PATH")
-	if github_event_file == "" {
-		github_event_file = "/github/workflow/event.json"
-	}
-
+	github_event_file := "/github/workflow/event.json"
 	file, err := ioutil.ReadFile(github_event_file)
 	if err != nil {
 		fail(fmt.Sprintf("GitHub event payload not found in %s", github_event_file))
