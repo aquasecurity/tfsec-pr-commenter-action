@@ -58,8 +58,8 @@ func main() {
 
 	workingDir := os.Getenv("INPUT_WORKING_DIRECTORY")
 	if workingDir != "" {
-		workingDir = strings.TrimPrefix(workingDir, "./")
 		workingDir = strings.TrimSuffix(workingDir, "/") + "/"
+		workingDir = strings.TrimPrefix(workingDir, "./")
 	}
 
 	var errMessages []string
@@ -129,7 +129,7 @@ More information available %s`,
 }
 
 func extractPullRequestNumber() (int, error) {
-	github_event_file := "/github/workflow/event.json"
+	github_event_file := os.Getenv("GITHUB_EVENT_PATH")
 	file, err := ioutil.ReadFile(github_event_file)
 	if err != nil {
 		fail(fmt.Sprintf("GitHub event payload not found in %s", github_event_file))
